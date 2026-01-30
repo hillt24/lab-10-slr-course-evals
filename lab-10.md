@@ -1,7 +1,10 @@
-Lab 10 - Grading the professor, Pt. 1
+Lab 10 - Grading the professor
 ================
 Insert your name here
 Insert date here
+
+Here is a link to the [lab
+instructions](https://datascience4psych.github.io/DataScience4Psych/lab10.html).
 
 ## Load Packages and Data
 

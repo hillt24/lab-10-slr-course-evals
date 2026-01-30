@@ -1,9 +1,11 @@
 ---
-title: "Lab 10 - Grading the professor, Pt. 1"
+title: "Lab 10 - Grading the professor"
 author: "Insert your name here"
 date: "Insert date here"
 output: github_document
 ---
+
+Here is a link to the [lab instructions](https://datascience4psych.github.io/DataScience4Psych/lab10.html).
 
 ## Load Packages and Data
 
