@@ -133,3 +133,31 @@ I think the amount of credits that the course is worth would be the worst predic
 m_bty_cls_credit <- lm(score ~ cls_credits, data = evals)
 summary(m_bty_cls_credit)
 ```
+### Exercises 3 & 4
+The number of students who did the evaluation, cls_did_evals, shouldn't be included in the model because this is directly correlated with the number of students in the class and the percentage of students that completed the evaluations. This would violate the assumptions of a regression. 
+```{r full-model}
+
+full_model_evals <- lm(score ~ rank + ethnicity + gender + language + age + cls_perc_eval + cls_students + cls_level + cls_profs + cls_credits + bty_avg, data = evals)
+summary(full_model_evals)
+```
+### Exercise 5
+```{r find-best-model, results='hide'}
+full_model_evals <- lm(score ~ rank + ethnicity + gender + language + age + cls_perc_eval + cls_students + cls_level + cls_profs + cls_credits + bty_avg, data = evals)
+m_best <- stats::step(full_model_evals, direction = "backward")
+summary(m_best)
+```
+
+
+
+### Exercise 6
+Non-minority professors score about 0.2 points higher than minority professors. For every one unit increase in age, evaluation score decreases by 0.01 points. 
+```{r best-model}
+
+m_best_fit <- lm(score ~ ethnicity + gender + language + age + cls_perc_eval + cls_credits + bty_avg, data = evals)
+summary(m_best_fit)
+```
+
+### Exercises 7 & 8
+
+At the University of Texas at Austin, a high evaluation score would be associated with a professor who teaches an attractive white, male professor and teaches a one credit class. 
+I would only feel comfortable generalizing this conclusion because there is a lot of research that backs up at least the idea that minority professors, specifically people of color and women, are evaluated less favorably than their white male counterparts. However, I wonder if this would look different at a minority-serving institution or a historically black college/university. 
