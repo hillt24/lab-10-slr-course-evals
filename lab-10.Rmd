@@ -1,43 +1,135 @@
 ---
-title: "Lab 10 - Grading the professor"
-author: "Insert your name here"
-date: "Insert date here"
+title: "Lab 10 - Grading the professor, Pt. 2"
+author: "Tiffani Hill"
+date: "03-22-2026"
 output: github_document
 ---
 
-Here is a link to the [lab instructions](https://datascience4psych.github.io/DataScience4Psych/lab10.html).
+## Load packages and data
 
-## Load Packages and Data
-
-```{r load-packages, message=FALSE, warning=FALSE}
+```{r load-packages, message=FALSE}
 library(tidyverse) 
 library(tidymodels)
 library(openintro)
 ```
 
-## Exercise 1
+### Exercise 1
 
-*Provide your answer here.*  
-Add code chunks as needed. Don't forget to label your code chunks.
+Students are pretty generous with their scores.
+```{r exercise1_code, echo=FALSE}
+evals %>% 
+  ggplot(aes(x = score))+
+  geom_histogram()
 
+fivenum(evals$score)
+median(evals$score)
+mean(evals$score)
 
-```{r exercise1_code}
-# Add your R code here
 ```
 
-## Exercise 2
+### Exercise 2
 
-*Provide your answer here.*  
-Add code chunks as needed.
+This graph shows a weak positive linear trend. Higher evaluation scores are associated with higher beauty ratings but this relationship is weak.
 
-```{r exercise2_code}
-# Add your R code here
+
+```{r exercise2_code, echo=FALSE}
+evals %>% 
+  ggplot(aes(x = score, y = bty_avg))+
+  geom_point()
 ```
 
-## Additional Exercises
+### Exercise 3
+This helped separate overlapping points, however it still shows the same relationship.
 
-*Repeat the format above for additional exercises.*
 
-## Hint
+```{r exercise-3, echo=FALSE}
+evals %>% 
+  ggplot(aes(x = score, y = bty_avg)) +
+  geom_jitter()
+```
 
-For Exercise 12, the `relevel()` function can be helpful!
+### Part 2: Exercise 1
+
+
+A one-point increase in beauty would predict a 0.07 increase in evaluation score.
+
+
+```{r exercise-one}
+
+m_bty <- lm(score ~ bty_avg, evals)
+summary(m_bty)
+```
+### Exercise 2 & 3
+
+Beauty appears to play a very minimal role in evaluations. The r-squared is very small so there is a small correlation between beauty and evaluation scores. Only about 4% of the variance in scores in explained by variance. The uncertainty shown with the shading may give the false narrative that the model fits better than it does. 
+```{r plot, echo=FALSE}
+evals %>% 
+  ggplot(aes(x = bty_avg, y = score)) +
+  geom_point() +
+  geom_smooth(method = "lm", color = "orange", se = FALSE)
+```
+
+### Part 3: Exercise 1
+The reference level is male. The intercept tells you that the best estimate of a female score is 4.09. Male professors are ranked about 0.14 points higher than female professors.The predicted mean evaluation score for female professors is 4.09 and for males it is 4.23. 
+```{r gender-scores}
+m_gen <- lm(score ~ gender, data = evals)
+tidy(m_gen)
+```
+### Part 3: Exercise 1
+
+
+
+```{r rank-scores}
+evals$rank_relevel <- relevel(evals$rank, ref = "tenure track")
+library(dplyr)
+
+evals <- evals %>%
+  mutate(
+    rank_relevel = relevel(factor(rank), ref = "tenure track"),
+    tenure_eligible = ifelse(rank == "teaching", "no", "yes")
+  )
+```
+
+### Exercise 2 
+
+The average score for teaching professors is 4.28. Tenure-track professors score about 0.13 points lower than teaching profesors and Tenured professors score about 0.15 points lower than teaching professors in the first model. 
+
+In the second model, tenure track professors score 4.15 points on average. Teaching professors score about 0.13 points higher and tenured professors score about 0.02 points lower but this difference is not significant.
+
+In the third model, teaching professors score 4.28 on average. Professors who are tenure eligible score 0.14 points less.
+
+Although teaching professors appear to score a bit higher on evaluations than tenured professors. However, this doesn't explain much variance in evaluations with an R-squared of 0.01.
+```{r rank-models}
+m_rank_original<- lm(score ~ rank, data = evals)
+summary(m_rank_original)
+
+m_rank_relevel <- lm(score ~ rank_relevel, data = evals)
+summary(m_rank_relevel)
+
+m_tenure_eligible <- lm(score ~ tenure_eligible, data = evals)
+summary(m_tenure_eligible)
+```
+### Part 4: Exercises 1, 2 & 3
+
+There is still a beauty effect when we account for gender. Female professors with a beauty score of 0 score about .17 points higher than males with a beauty score of 0. The slope for beauty increases when gender is added. Beauty does a little more work than gender. The r-sqaured for beauty is 0.035 vs. 0.059 when beauty is added. 
+```{r beauty-effect-gender}
+
+m_bty <- lm(score ~ bty_avg, data = evals)
+summary(m_bty)
+
+m_bty_gen <- lm(score ~ bty_avg + gender, data = evals)
+summary(m_bty_gen)
+```
+### Exercise 4
+The average score for teaching professors is 3.98. Tenure track professors with beauty score of 0 have evaluation scores that are 0.16 points lower than teaching professors. For a one point increase in beauty, evaluation scores increase by 0.07 points. 
+```{r beauty-rank-model}
+m_bty_rank <- lm(score ~ bty_avg + rank, data = evals)
+summary(m_bty_rank)
+```
+
+### Part 5: Exercise 1
+I think the amount of credits that the course is worth would be the worst predictor. Most course are multi-credit so I don't think this will make much of a difference. It looks like I was wrong about this, though. Class credits explains 0.04% of variance in course evals. 
+```{r worst-model}
+m_bty_cls_credit <- lm(score ~ cls_credits, data = evals)
+summary(m_bty_cls_credit)
+```
